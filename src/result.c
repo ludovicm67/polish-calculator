@@ -11,6 +11,7 @@ Result construct_result() {
     }
     r->is_error = 0;
     r->is_empty = 1;
+    r->need_exit = 0;
     r->err_msg = NULL;
     return r;
 }
@@ -41,6 +42,17 @@ Result value_result(double d) {
     return r;
 }
 
+Result exit_result() {
+    Result r = empty_result();
+    r->need_exit = 1;
+    return r;
+}
+
+unsigned int need_exit(Result r) {
+    if (!r) return 0;
+    else return r->need_exit;
+}
+
 void free_result(Result r) {
     if (!r) return;
     free(r);
@@ -54,7 +66,6 @@ void print_result(Result r) {
         printf("\n");
     }
     else if (!r->is_empty) printf("%.4f\n", r->value);
-    free_result(r);
 }
 
 Result compute_result(char * line) {
@@ -75,7 +86,7 @@ Result compute_result(char * line) {
             // Quitte le programme si l'instruction commence par "quit"
             if (!memcmp(tok, "quit", 4)) {
                 free(start_tok);
-                exit(EXIT_SUCCESS);
+                return exit_result();
             }
             is_first = 0;
         }

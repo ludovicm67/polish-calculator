@@ -55,19 +55,24 @@ unsigned int check_if_pipe() {
 }
 
 int main() {
-    unsigned int is_pipe = check_if_pipe();
-    int read;
-
     char * lineptr = NULL;
+    int read;
+    Result r;
     size_t n = 0;
+    unsigned int is_pipe = check_if_pipe();
 
     if (!is_pipe) PRINT_PROMPT();
     while ((read = getline(&lineptr, &n, stdin)) != -1) {
-        print_result(compute_result(lineptr));
+        r = compute_result(lineptr);
+        print_result(r);
+        if (need_exit(r)) {
+            free_result(r);
+            break;
+        }
+        free_result(r);
         if (!is_pipe) PRINT_PROMPT();
     }
     free(lineptr);
-
 
     return EXIT_SUCCESS;
 }
