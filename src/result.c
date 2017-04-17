@@ -192,6 +192,7 @@ Result compute_result(char * line) {
     char *lastptr, *endptr;
     double number;
     unsigned int is_first = 1;
+    Tree t = construct_tree();
     Type op_t;
 
     memcpy(tok, line, line_length);
@@ -202,32 +203,34 @@ Result compute_result(char * line) {
             // Quitte le programme si l'instruction commence par "quit"
             if (!memcmp(tok, "quit", 4)) {
                 free(start_tok);
+                free_tree(t);
                 return exit_result();
             }
             is_first = 0;
         }
-        printf(" == WORD =  %s (operator_type = %d)\n", tok, operator_type(tok));
 
         lastptr = tok;
         number = strtod(lastptr, &endptr);
 
-        // cas d'un nombre seul
         if (lastptr != endptr && *endptr == '\0') {
-            // add_number_to_tree(number);
+            add_number_to_tree(t, number);
         } else {
 
             while (*endptr != '\0') {
                 op_t = operator_type(endptr);
-                printf("%c op_type=%d\n", *endptr, op_t);
                 if (!is_operator(op_t)) {
                     free(start_tok);
+                    free_tree(t);
                     return error_msg_result("unknown operator");
+                } else {
+                    add_operator_to_tree(t, op_t);
+                    endptr++;
+                    for (; (*endptr >= 'a' && *endptr <= 'z'); endptr++);
                 }
-                else endptr++;
                 lastptr = endptr;
                 number = strtod(lastptr, &endptr);
                 if (lastptr != endptr) {
-                    printf("))NUMBER = %.4f\n", number);
+                    add_number_to_tree(t, number);
                 }
             }
 
@@ -236,9 +239,13 @@ Result compute_result(char * line) {
         tok = NULL;
     }
 
+reduce_tree(t);
+print_tree(t);
+
     if (start_tok == tok) return empty_result();
 
     free(start_tok);
+    free_tree(t);
 
     return value_result(42);
 }

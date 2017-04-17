@@ -27,7 +27,21 @@ typedef struct s_tree {
     struct s_tree *left_child, *right_child;
 }  * Tree;
 
+typedef struct s_cursor {
+    Tree t;
+    unsigned int ok;
+} Cursor;
+
 Tree construct_tree();
 void free_tree(Tree t);
+void _print_tree(Tree t, unsigned int n);
+void print_tree(Tree t);
+unsigned int is_number_left_tree(Tree t);
+unsigned int is_number_right_tree(Tree t);
+void calc_node_tree(Tree t);
+void reduce_tree(Tree t);
+Cursor cursor_tree(Tree t);
+void add_operator_to_tree(Tree t, Type op);
+void add_number_to_tree(Tree t, double n);
 
 #endif
