@@ -20,4 +20,11 @@ void free_result(Result r);
 void print_result(Result r);
 Result compute_result(char * line);
 
+
+Type operator_type(char * op);
+int operator_size(Type op);
+char * operator_reverse(Type op);
+unsigned int is_operator(Type op);
+unsigned int is_number(Type op);
+
 #endif

@@ -8,7 +8,7 @@ Tree construct_tree() {
         fprintf(stderr, "Le malloc a échoué !\n");
         exit(EXIT_FAILURE);
     }
-    t->op = NULL;
+    t->type = OP_UNKNOWN;
     t->left_child = NULL;
     t->right_child = NULL;
     return t;
@@ -21,11 +21,13 @@ void free_tree(Tree t) {
     free(t);
 }
 
-// Dernier opérateur de l'arbre
-Tree last_op_tree(Tree t) {
-    if (!t) return t;
-    else if (!t->op) return NULL;
-    else if (!t->left_child) return t;
-    while (t->left_child->op) t = t->left_child;
-    return t;
-}
+// int add_number_to_tree(Tree t, double d) {
+//     if (t->type == OP_UNKNOWN && !left_child && !right_child) {
+//         t->type = OP_NUMBER;
+//         t->value = d;
+//     } else if (is_operator(t->type)) {
+
+//     }
+
+//     return -1; // @TODO : add error check
+// }
