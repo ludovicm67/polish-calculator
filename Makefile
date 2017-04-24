@@ -2,28 +2,27 @@
 DIROBJ  = obj
 DIRINC  = include
 DIRSRC  = src
-DIRBIN  = bin
 
 # Compiler
 CC      = gcc
 CFLAGS  = -g -std=gnu11 -pedantic -O3 -march=native -Wall -Wextra -Werror
 
 # Dependencies, objects, ...
-DEPS    = $(wildcard include/*.h)
-SOURCES = $(wildcard src/*.c)
-OBJETS  = $(SOURCES:src/%.c=obj/%.o)
+DEPS    = $(wildcard $(DIRINC)/*.h)
+SOURCES = $(wildcard $(DIRSRC)/*.c)
+OBJETS  = $(SOURCES:$(DIRSRC)/%.c=$(DIROBJ)/%.o)
 EXEC    = pc
 
 .SUFFIXES:
 
 # We create targets
-$(DIRBIN)/$(EXEC) : $(OBJETS) | $(DIRBIN)
-	$(CC) $(CFLAGS) -o $@ $^
+$(EXEC) : $(OBJETS)
+	$(CC) $(CFLAGS) -o $@ $^ -lm
 
 $(DIROBJ)/%.o : $(DIRSRC)/%.c $(DEPS) | $(DIROBJ)
 	$(CC) $(CFLAGS) -c -I$(DIRINC) -o $@ $<
 
-$(DIROBJ) $(DIRBIN):
+$(DIROBJ):
 	@mkdir -p $@
 
 # Targets to call manually
@@ -33,4 +32,8 @@ archive:
 
 .PHONY: clean
 clean:
-	rm -rf $(DIROBJ) $(DIRBIN)
+	rm -rf $(DIROBJ) $(EXEC)
+
+.PHONY: test
+test:
+	echo test

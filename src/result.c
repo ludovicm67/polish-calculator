@@ -185,13 +185,13 @@ Result compute_result(char * line) {
     unsigned int line_length;
 
     if (!line) return error_result();
-    else if ((line_length = strlen(line)) == 0) return empty_result();
+    else if ((line_length = strlen(line)) == 0 || *line == '\n') return empty_result();
 
     char * tok = strdup(line);
     char * start_tok = tok;
     char *lastptr, *endptr;
     double number;
-    unsigned int is_first = 1;
+    unsigned int is_first = 1, is_empty = 0, is_err = 0;
     Tree t = construct_tree();
     Type op_t;
 
@@ -225,7 +225,7 @@ Result compute_result(char * line) {
                 } else {
                     add_operator_to_tree(t, op_t);
                     endptr++;
-                    for (; (*endptr >= 'a' && *endptr <= 'z'); endptr++);
+                    while (*endptr >= 'a' && *endptr <= 'z') endptr++;
                 }
                 lastptr = endptr;
                 number = strtod(lastptr, &endptr);
@@ -239,13 +239,19 @@ Result compute_result(char * line) {
         tok = NULL;
     }
 
-reduce_tree(t);
-print_tree(t);
+    reduce_tree(t);
 
-    if (start_tok == tok) return empty_result();
+    // print_tree(t);
+
+    if (start_tok == tok) is_empty = 1;
+
+    if (is_number(t->type)) number = t->value;
+    else is_err = 1;
 
     free(start_tok);
     free_tree(t);
 
-    return value_result(42);
+    if (is_empty) return empty_result();
+    else if (is_err) return error_msg_result("operation not finished");
+    else return value_result(number);
 }

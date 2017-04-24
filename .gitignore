@@ -1,5 +1,4 @@
 pc
-bin/
 obj/
 *.swp
 *.workspace

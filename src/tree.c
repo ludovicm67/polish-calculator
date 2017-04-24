@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <tgmath.h>
 #include "tree.h"
 #include "result.h"
 
@@ -98,6 +99,34 @@ void calc_node_tree(Tree t) {
             t->left_child = NULL;
             t->right_child = NULL;
         }
+    } else if (operator_size(t->type) == 1) {
+        if (is_number_left_tree(t) && !t->right_child) {
+            switch (t->type) {
+                case OP_SQRT:
+                    t->value = sqrt(t->left_child->value);
+                    break;
+                case OP_EXP:
+                    t->value = exp(t->left_child->value);
+                    break;
+                case OP_LN:
+                    t->value = log(t->left_child->value);
+                    break;
+                case OP_ABS:
+                    t->value = fabs(t->left_child->value);
+                    break;
+                case OP_FLOOR:
+                    t->value = floor(t->left_child->value);
+                    break;
+                case OP_CEIL:
+                    t->value = ceil(t->left_child->value);
+                    break;
+                default:
+                    break;
+            }
+            t->type = OP_NUMBER;
+            free_tree(t->left_child);
+            t->left_child = NULL;
+        }
     }
 }
 
@@ -113,8 +142,7 @@ Cursor cursor_tree(Tree t) {
     c.t = NULL;
     c.ok = 0;
 
-    if (!t) return c;
-    else if (!is_operator(t->type)) return c;
+    if (!t || !is_operator(t->type)) return c;
     else if (is_number_left_tree(t) && is_number_right_tree(t)) {
         return c;
     } else {
@@ -126,12 +154,14 @@ Cursor cursor_tree(Tree t) {
             c = cursor_tree(t->left_child);
             if (c.ok) {
                 return c;
-            } else if (!t->right_child) {
-                c.t = t;
-                c.ok = 1;
-                return c;
-            } else {
-                c = cursor_tree(t->right_child);
+            } else if (operator_size(t->type) == 2) {
+                if (!t->right_child) {
+                    c.t = t;
+                    c.ok = 1;
+                    return c;
+                } else {
+                    c = cursor_tree(t->right_child);
+                }
             }
         }
     }
