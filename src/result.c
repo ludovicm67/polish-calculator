@@ -83,6 +83,7 @@ unsigned int string_equals(char * str1, char * str2) {
     return !memcmp(str1, str2, strlen(str2));
 }
 
+// Retourne le type de l'opérateur
 Type operator_type(char * op) {
     if (!op) return OP_UNKNOWN;
 
@@ -143,6 +144,7 @@ int operator_size(Type op) {
 
 }
 
+// Retourne la chaine de caractère correspondant à un opérateur
 char * operator_reverse(Type op) {
 
     switch (op) {
@@ -180,16 +182,18 @@ char * operator_reverse(Type op) {
 
 }
 
+// Vaut 1 s'il s'agit d'un opérateur, 0 sinon
 unsigned int is_operator(Type op) {
     int size = operator_size(op);
     return size == 1 || size == 2;
 }
 
+// Vaut 1 s'il s'agit d'un nombre, 0 sinon
 unsigned int is_number(Type op) {
     return operator_size(op) == 0;
 }
 
-
+// Permet de calculer une ligne
 Result compute_result(char * line) {
     unsigned int line_length;
 
@@ -202,7 +206,7 @@ Result compute_result(char * line) {
     char * start_tok = tok;
     char *lastptr, *endptr;
     double number;
-    unsigned int is_first = 1, is_empty = 0, is_err = 0;
+    unsigned int is_first = 1, is_empty = 0, is_err = 0, response;
     Tree t = construct_tree();
     Type op_t;
 
@@ -225,14 +229,26 @@ Result compute_result(char * line) {
 
         // S'il a réussi  lire un nombre
         if (lastptr != endptr && *endptr == '\0') {
-            add_number_to_tree(t, number);
+            response = add_number_to_tree(t, number);
+            if (!response) {
+                free(start_tok);
+                free_tree(t);
+                return error_result();
+            }
         } else {
             op_t = operator_type(endptr);
             if (!is_operator(op_t)) {
                 free(start_tok);
                 free_tree(t);
                 return error_msg_result("unknown operator");
-            } else add_operator_to_tree(t, op_t);
+            } else {
+                response = add_operator_to_tree(t, op_t);
+                if (!response) {
+                    free(start_tok);
+                    free_tree(t);
+                    return error_result();
+                }
+            }
         }
 
         tok = NULL;

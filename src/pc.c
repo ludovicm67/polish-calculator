@@ -9,6 +9,7 @@
 
 #define PRINT_PROMPT() printf("\033[1;34m>>> \033[0m")
 
+// Permet de mettre en minuscules une chaine de caractères
 char * strtolower(char * str) {
     char * tmp = str;
     for (; *tmp; tmp++) {

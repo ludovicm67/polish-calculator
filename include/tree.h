@@ -41,7 +41,7 @@ unsigned int is_number_right_tree(Tree t);
 void calc_node_tree(Tree t);
 void reduce_tree(Tree t);
 Cursor cursor_tree(Tree t);
-void add_operator_to_tree(Tree t, Type op);
-void add_number_to_tree(Tree t, double n);
+unsigned int add_operator_to_tree(Tree t, Type op);
+unsigned int add_number_to_tree(Tree t, double n);
 
 #endif

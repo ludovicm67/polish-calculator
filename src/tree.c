@@ -171,57 +171,49 @@ Cursor cursor_tree(Tree t) {
     return c;
 }
 
-// Ajoute un opérateur dans l'arbre
-void add_operator_to_tree(Tree t, Type op) {
-    if (!t) return;
-    else if (t->type == OP_UNKNOWN) t->type = op;
-    else if (is_operator(t->type)) {
-
+// Ajoute un opérateur dans l'arbre (retourne 1 en cas de succès, 0 sinon)
+unsigned int add_operator_to_tree(Tree t, Type op) {
+    if (!t) return 0;
+    else if (t->type == OP_UNKNOWN) {
+        t->type = op;
+        return 1;
+    } else if (is_operator(t->type)) {
         Cursor c = cursor_tree(t);
-        if (!c.ok) {
-            printf("PAS DE PLACE DISPO !\n");
-            return;
-        }
-
-        if (!c.t->left_child) {
+        if (!c.ok) return 0;
+        else if (!c.t->left_child) {
             c.t->left_child = construct_tree();
             c.t->left_child->type = op;
+            return 1;
         } else if (!c.t->right_child) {
             c.t->right_child = construct_tree();
             c.t->right_child->type = op;
-        } else {
-            printf("PAS DE PLACE DISPO !\n");
-            return;
-        }
+            return 1;
+        } else return 0;
     }
+    return 0;
 }
 
-// Ajoute un nombre dans l'arbre
-void add_number_to_tree(Tree t, double n) {
-    if (!t) return;
+// Ajoute un nombre dans l'arbre (retourne 1 en cas de succès, 0 sinon)
+unsigned int add_number_to_tree(Tree t, double n) {
+    if (!t) return 0;
     else if (t->type == OP_UNKNOWN) {
         t->value = n;
         t->type = OP_NUMBER;
+        return 1;
     } else if (is_operator(t->type)) {
-
         Cursor c = cursor_tree(t);
-        if (!c.ok) {
-            printf("PAS DE PLACE DISPO !\n");
-            return;
-        }
-
-        if (!c.t->left_child) {
+        if (!c.ok) return 0;
+        else if (!c.t->left_child) {
             c.t->left_child = construct_tree();
             c.t->left_child->value = n;
             c.t->left_child->type = OP_NUMBER;
+            return 1;
         } else if (!c.t->right_child) {
             c.t->right_child = construct_tree();
             c.t->right_child->value = n;
             c.t->right_child->type = OP_NUMBER;
-        } else {
-            printf("PAS DE PLACE DISPO !\n");
-            return;
-        }
-
+            return 1;
+        } else return 0;
     }
+    return 0;
 }

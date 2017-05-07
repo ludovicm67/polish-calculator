@@ -14,6 +14,8 @@ SOURCES = $(wildcard $(DIRSRC)/*.c)
 OBJETS  = $(SOURCES:$(DIRSRC)/%.c=$(DIROBJ)/%.o)
 EXEC    = pc
 
+ARCHIVE = muller-ludovic
+
 .SUFFIXES:
 
 # We create targets
@@ -28,13 +30,14 @@ $(DIROBJ):
 
 # Targets to call manually
 .PHONY: archive
-archive:
-	tar -f archive.tar.gz -cvz $(DIRSRC)/*.c $(DIRINC)/*.h Makefile
+archive: clean
+	tar -cvzf $(ARCHIVE).tar.gz --transform="s,^,$(ARCHIVE)/," $(DIRSRC)/*.c $(DIRINC)/*.h test/* check.sh Makefile
 
 .PHONY: clean
 clean:
 	rm -rf $(DIROBJ) $(EXEC) test/*.tmp.txt
 
-.PHONY: test
-test: clean $(EXEC)
+.PHONY: test tests
+test: tests
+tests: clean $(EXEC)
 	./check.sh

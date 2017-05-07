@@ -2,3 +2,5 @@ pc
 obj/
 *.swp
 *.workspace
+*.tar.gz
+*.tmp.txt
