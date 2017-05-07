@@ -6,6 +6,7 @@ DIRSRC  = src
 # Compiler
 CC      = gcc
 CFLAGS  = -g -std=gnu11 -pedantic -O3 -march=native -Wall -Wextra -Werror
+LDFLAGS = -lm
 
 # Dependencies, objects, ...
 DEPS    = $(wildcard $(DIRINC)/*.h)
@@ -17,7 +18,7 @@ EXEC    = pc
 
 # We create targets
 $(EXEC) : $(OBJETS)
-	$(CC) $(CFLAGS) -o $@ $^ -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(DIROBJ)/%.o : $(DIRSRC)/%.c $(DEPS) | $(DIROBJ)
 	$(CC) $(CFLAGS) -c -I$(DIRINC) -o $@ $<

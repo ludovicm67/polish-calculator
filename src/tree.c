@@ -4,18 +4,20 @@
 #include "tree.h"
 #include "result.h"
 
+// Concstructeur qui permet de construire un nouvel arbre
 Tree construct_tree() {
     Tree t = malloc(sizeof(struct s_tree));
     if (!t) {
         fprintf(stderr, "Le malloc a échoué !\n");
         exit(EXIT_FAILURE);
     }
-    t->type = OP_UNKNOWN;
+    t->type = OP_UNKNOWN; // par défaut le type est inconnu
     t->left_child = NULL;
     t->right_child = NULL;
     return t;
 }
 
+// On libère l'espace occupé par l'arbre t en mémoire
 void free_tree(Tree t) {
     if (!t) return;
     free_tree(t->left_child);
@@ -23,6 +25,7 @@ void free_tree(Tree t) {
     free(t);
 }
 
+// FOnction auxilière pour print_tree(t)
 void _print_tree(Tree t, unsigned int n) {
     unsigned int i;
     if (!t || t->type == OP_UNKNOWN) return;
@@ -44,11 +47,12 @@ void _print_tree(Tree t, unsigned int n) {
 
 }
 
-// affiche un arbre binaire (de manière indentée, idéal pour débugger)
+// Affiche un arbre binaire (de manière indentée, idéal pour débugger)
 void print_tree(Tree t) {
     _print_tree(t, 0);
 }
 
+// Vaut 1 si le fils gauche est un nombre, 0 sinon
 unsigned int is_number_left_tree(Tree t) {
     if (!t) return 0;
     else if (t->left_child && is_number(t->left_child->type)) {
@@ -56,6 +60,7 @@ unsigned int is_number_left_tree(Tree t) {
     } else return 0;
 }
 
+// Vaut 1 si le fils de droit est un nombre, 0 sinon
 unsigned int is_number_right_tree(Tree t) {
     if (!t) return 0;
     else if (t->right_child && is_number(t->right_child->type)) {
@@ -63,6 +68,7 @@ unsigned int is_number_right_tree(Tree t) {
     } else return 0;
 }
 
+// Permet de cacluler un noeud de l'arbre
 void calc_node_tree(Tree t) {
     if (!t) return;
     else if (operator_size(t->type) == 2) {
@@ -130,6 +136,7 @@ void calc_node_tree(Tree t) {
     }
 }
 
+// Réduit un arbre au maximum en effectueant les différentes opérations
 void reduce_tree(Tree t) {
     if (!t) return;
     reduce_tree(t->left_child);
@@ -137,43 +144,38 @@ void reduce_tree(Tree t) {
     calc_node_tree(t);
 }
 
+// Retourne un curseur au prochain emplacement disponible
 Cursor cursor_tree(Tree t) {
     Cursor c;
     c.t = NULL;
     c.ok = 0;
 
     if (!t || !is_operator(t->type)) return c;
-    else if (is_number_left_tree(t) && is_number_right_tree(t)) {
+    else if (is_number_left_tree(t) && is_number_right_tree(t)) return c;
+    else if (!t->left_child) {
+        c.t = t;
+        c.ok = 1;
         return c;
     } else {
-        if (!t->left_child) {
-            c.t = t;
-            c.ok = 1;
-            return c;
-        } else {
-            c = cursor_tree(t->left_child);
-            if (c.ok) {
+        c = cursor_tree(t->left_child);
+        if (c.ok) return c;
+        else if (operator_size(t->type) == 2) {
+            if (!t->right_child) {
+                c.t = t;
+                c.ok = 1;
                 return c;
-            } else if (operator_size(t->type) == 2) {
-                if (!t->right_child) {
-                    c.t = t;
-                    c.ok = 1;
-                    return c;
-                } else {
-                    c = cursor_tree(t->right_child);
-                }
-            }
+            } else c = cursor_tree(t->right_child);
         }
     }
 
     return c;
 }
 
+// Ajoute un opérateur dans l'arbre
 void add_operator_to_tree(Tree t, Type op) {
     if (!t) return;
-    else if (t->type == OP_UNKNOWN) {
-        t->type = op;
-    } else if (is_operator(t->type)) {
+    else if (t->type == OP_UNKNOWN) t->type = op;
+    else if (is_operator(t->type)) {
 
         Cursor c = cursor_tree(t);
         if (!c.ok) {
@@ -191,11 +193,10 @@ void add_operator_to_tree(Tree t, Type op) {
             printf("PAS DE PLACE DISPO !\n");
             return;
         }
-
-
     }
 }
 
+// Ajoute un nombre dans l'arbre
 void add_number_to_tree(Tree t, double n) {
     if (!t) return;
     else if (t->type == OP_UNKNOWN) {

@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "result.h"
 
+// Constructeur pour transmettre des résultats
 Result construct_result() {
     Result r = malloc(sizeof(struct s_result));
     if (!r) {
@@ -17,24 +18,28 @@ Result construct_result() {
     return r;
 }
 
+// Retourne un résultat vide
 Result empty_result() {
     Result r = construct_result();
     r->is_empty = 1;
     return r;
 }
 
+// Retourne un résultat avec une erreur
 Result error_result() {
     Result r = construct_result();
     r->is_error = 1;
     return r;
 }
 
+// Retourne un résultat avec un message d'erreur
 Result error_msg_result(char * msg) {
     Result r = error_result();
     r->err_msg = msg;
     return r;
 }
 
+// Retourne un résultat contenant une valeur
 Result value_result(double d) {
     Result r = construct_result();
     r->is_empty = 0;
@@ -43,32 +48,36 @@ Result value_result(double d) {
     return r;
 }
 
+// Pour dire que l'on souhaite faire quitter le programme
 Result exit_result() {
     Result r = empty_result();
     r->need_exit = 1;
     return r;
 }
 
+// Permet de vérifier s'il y a besoin de faire quitter le programme ou non
 unsigned int need_exit(Result r) {
     if (!r) return 0;
     else return r->need_exit;
 }
 
+// Permet de libérer la structure utilisée pour la transmission de résultat
 void free_result(Result r) {
     if (!r) return;
     free(r);
 }
 
+// Affiche un résultat
 void print_result(Result r) {
     if (!r) return;
     else if (r->is_error) {
-        printf("ERROR");
-        if (r->err_msg) printf(": %s", r->err_msg);
-        printf("\n");
+        if (r->err_msg) fprintf(stderr, "Error: %s\n", r->err_msg);
+        printf("ERROR\n");
     }
     else if (!r->is_empty) printf("%.4f\n", r->value);
 }
 
+// Vérifie si deux chaînes de caractères sont égales ou non
 unsigned int string_equals(char * str1, char * str2) {
     if (strlen(str1) != strlen(str2)) return 0;
     return !memcmp(str1, str2, strlen(str2));
@@ -185,7 +194,9 @@ Result compute_result(char * line) {
     unsigned int line_length;
 
     if (!line) return error_result();
-    else if ((line_length = strlen(line)) == 0 || *line == '\n') return empty_result();
+    else if ((line_length = strlen(line)) == 0 || *line == '\n') {
+        return empty_result();
+    }
 
     char * tok = strdup(line);
     char * start_tok = tok;
@@ -212,39 +223,26 @@ Result compute_result(char * line) {
         lastptr = tok;
         number = strtod(lastptr, &endptr);
 
+        // S'il a réussi  lire un nombre
         if (lastptr != endptr && *endptr == '\0') {
             add_number_to_tree(t, number);
         } else {
-
-            while (*endptr != '\0') {
-                op_t = operator_type(endptr);
-                if (!is_operator(op_t)) {
-                    free(start_tok);
-                    free_tree(t);
-                    return error_msg_result("unknown operator");
-                } else {
-                    add_operator_to_tree(t, op_t);
-                    endptr++;
-                    while (*endptr >= 'a' && *endptr <= 'z') endptr++;
-                }
-                lastptr = endptr;
-                number = strtod(lastptr, &endptr);
-                if (lastptr != endptr) {
-                    add_number_to_tree(t, number);
-                }
-            }
-
+            op_t = operator_type(endptr);
+            if (!is_operator(op_t)) {
+                free(start_tok);
+                free_tree(t);
+                return error_msg_result("unknown operator");
+            } else add_operator_to_tree(t, op_t);
         }
 
         tok = NULL;
     }
 
+    // print_tree(t);
     reduce_tree(t);
-
     // print_tree(t);
 
     if (start_tok == tok) is_empty = 1;
-
     if (is_number(t->type)) number = t->value;
     else is_err = 1;
 
@@ -252,6 +250,6 @@ Result compute_result(char * line) {
     free_tree(t);
 
     if (is_empty) return empty_result();
-    else if (is_err) return error_msg_result("operation not finished");
+    else if (is_err) return error_msg_result("missing operand");
     else return value_result(number);
 }
