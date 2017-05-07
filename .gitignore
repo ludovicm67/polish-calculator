@@ -4,3 +4,4 @@ obj/
 *.workspace
 *.tar.gz
 *.tmp.txt
+rapport.*
