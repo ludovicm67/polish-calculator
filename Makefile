@@ -33,8 +33,8 @@ archive:
 
 .PHONY: clean
 clean:
-	rm -rf $(DIROBJ) $(EXEC)
+	rm -rf $(DIROBJ) $(EXEC) test/*.tmp.txt
 
 .PHONY: test
-test:
-	echo test
+test: clean $(EXEC)
+	./check.sh

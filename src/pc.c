@@ -7,7 +7,7 @@
 #include "tree.h"
 #include "result.h"
 
-#define PRINT_PROMPT() printf(">>> ")
+#define PRINT_PROMPT() printf("\033[1;34m>>> \033[0m")
 
 char * strtolower(char * str) {
     char * tmp = str;
@@ -38,7 +38,7 @@ int main() {
     }
     free(lineptr);
 
-    if (!stop) printf("\n");
+    if (!stop && is_tty) printf("\n");
 
     return EXIT_SUCCESS;
 }
